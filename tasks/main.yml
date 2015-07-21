@@ -1,0 +1,39 @@
+---
+
+- name: dependencies
+  include: depend.yml
+
+- name: create temp archive location
+  file:
+    state=directory
+    path={{ s3backup_temp }}
+    mode=750
+
+- name: get the current time in UTC ISO 8601 
+  command: date -u +%Y-%m-%dT%H-%M-%SZ
+  register: utc_time
+
+- set_fact:
+    utc_year: {{ utc_time | truncate(4) }}
+    archive_name: {{ s3backup_archive_name }}_{{ utc_time }}.tar.gz 
+
+- name: archive
+  command: tar -zcvf {{ s3backup_temp }}/{{ archive_name }} {{ s3bucket_archive_folder }}
+
+- name: ensure bucket and year folder exists
+  s3:
+    bucket={{ s3backup_bucket_name }}
+    object=/{{ utc_year }}
+    mode=create
+
+- name: upload archive to bucket
+  s3:
+    bucket={{ s3backup_bucket_name }}
+    src={{ s3backup_temp }}/{{ archive_name }}
+    object=/{{ utc_year }}/{{ archive_name }}
+    metadata='Content-Encoding=gzip,Content-Type:application/gnutar'
+    mode=put
+  register: s3results
+
+
+
