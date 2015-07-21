@@ -9,7 +9,7 @@
     path={{ s3backup_temp }}
     mode=750
 
-- name: get the current time in UTC ISO 8601 
+- name: get the current time in UTC ISO 8601
   command: date -u +%Y-%m-%dT%H-%M-%SZ
   register: utc_time
 
@@ -33,7 +33,19 @@
     object=/{{ utc_year }}/{{ s3backup_folder }}/{{ archive_name }}
     metadata='Content-Encoding=gzip,Content-Type:application/gnutar'
     mode=put
-  register: s3results
 
+- name: upload as latest
+  s3:
+    bucket={{ s3backup_bucket_name }}
+    src={{ s3backup_temp }}/{{ archive_name }}
+    object=/{{ utc_year }}/{{ s3backup_folder }}/latest.tar.gz
+    metadata='Content-Encoding=gzip,Content-Type:application/gnutar'
+    mode=put 
+  when: s3backup_make_latest
+
+- name: remove temp file
+  file:
+    state=absent
+    path={{ s3backup_temp }}/{{ archive_name }}
 
 

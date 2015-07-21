@@ -4,5 +4,5 @@ s3backup_bucket_name: mybackup.backups.mysite.com
 s3backup_folder: general
 s3bucket_archive_folder: /var/log
 s3backup_archive_name: therootname
-
+s3backup_make_latest: false
 s3backup_temp: /tmp/s3backup
