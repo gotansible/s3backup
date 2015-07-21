@@ -30,7 +30,7 @@
   s3:
     bucket={{ s3backup_bucket_name }}
     src={{ s3backup_temp }}/{{ archive_name }}
-    object=/{{ utc_year }}/{{ archive_name }}
+    object=/{{ utc_year }}/{{ s3backup_folder }}/{{ archive_name }}
     metadata='Content-Encoding=gzip,Content-Type:application/gnutar'
     mode=put
   register: s3results
